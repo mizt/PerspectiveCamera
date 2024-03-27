@@ -32,11 +32,18 @@
 				line-height:1em;
 			}
 			
+			a {
+				color:#FFF;
+			}
+			
 		</style>
 	</head>
 	<body>
 		<script type="module">
 			
+			// https://github.com/KoryNunn/crel
+			(e=>{const t="function",n="isNode",o=(e,t)=>typeof e===t,r=(e,t)=>{null!==t&&(Array.isArray(t)?t.map(t=>r(e,t)):(i[n](t)||(t=document.createTextNode(t)),e.appendChild(t)))};function i(e,a){let d,f,l=arguments,c=1;if(e=i.isElement(e)?e:document.createElement(e),o(a,"object")&&!i[n](a)&&!Array.isArray(a))for(d in c++,a)f=a[d],o(d=i.attrMap[d]||d,t)?d(e,f):o(f,t)?e[d]=f:e.setAttribute(d,f);for(;c<l.length;c++)r(e,l[c]);return e}i.attrMap={},i.isElement=(e=>e instanceof Element),i[n]=(e=>e instanceof Node),i.proxy=new Proxy(i,{get:(e,t)=>(!(t in i)&&(i[t]=i.bind(null,t)),i[t])}),e(i,t)})((e,t)=>{"object"==typeof exports?module.exports=e:typeof define===t&&define.amd?define(()=>e):window.crel=e});
+				
 			import { Quaternion } from './math/Quaternion.js';
 			import { Vector2 } from './math/Vector2.js';
 			import { Vector3 } from './math/Vector3.js';
@@ -288,24 +295,57 @@
 			const near = 0.1;
 			const far = 100;
 			
-			const src = document.createElement("p");
-			src.textContent = "const camera = new PerspectiveCamera("+fov+","+aspect+","+near+","+far+");";
-			
 			const camera = new PerspectiveCamera(fov,aspect,near,far);
-			console.log(camera.projectionMatrix.elements.join(","));
-			console.log(camera.toJSON());
-
-			document.body.append(src);
+			
+			document.body.append(
+				crel("p","const camera = new PerspectiveCamera("+fov+","+aspect+","+near+","+far+");")
+			);
 			
 			const elements = (camera.projectionMatrix.elements.join(",")).split(",");
 
-			const dst = document.createElement("p");
+			const dst = crel("p");
 			let str = "";
 			for(var n=0; n<16; n++) {
-				dst.append(document.createTextNode(elements[n]+((n==15)?"":",")));
-				if(n%4==3) dst.append(document.createElement("br"));
+				crel(dst,(elements[n]+((n==15)?"":",")));
+				if(n%4==3) crel(dst,crel("br"));
 			}
 			document.body.append(dst);
+			
+			const radians = (angle)=>{
+				return angle*(Math.PI/180.0);
+			};
+			
+			document.body.append(crel("p",
+				"elements[0] = (1.0/Math.tan(radians(fov*0.5))/aspect;",
+				crel("br"),
+				""+(1.0/Math.tan(radians(fov*0.5)))/aspect
+			));
+			
+			document.body.append(crel("p",
+				"elements[10] = -(far/(far-near)); in WebGPUCoordinateSystem",
+				crel("br"),
+				""+(-(far/(far-near))),
+				crel("br"),
+				"elements[10] = -((far+near)/(far-near)); in WebGLCoordinateSystem",
+				crel("br"),
+				""+(-((far+near)/(far-near)))
+			));
+				
+			document.body.append(crel("p",
+				"elements[14] = (-2.0*far*near)/(far-near); in WebGPUCoordinateSystem",
+				crel("br"),
+				""+((-2.0*far*near)/(far-near)),
+				crel("br"),
+				"elements[14] = (-far*near)/(far-near); in WebGLCoordinateSystem",
+				crel("br"),
+				""+((-far*near)/(far-near))
+			));
+			
+			document.body.append(crel("p",
+				crel("a",{"href":"https://threejs.org/"},"three.js"),
+				crel("br"),
+				crel("a",{"href":"https://docs.unity3d.com/6000.0/Documentation/Manual/SL-PlatformDifferences.html"},"Writing shaders for different graphics APIs")
+			));
 			
 		</script>
 	</body>
